@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+chai Aur Tweet
+{% endblock %}
+
+{% block content %}
+<h1 class="text-center text-dark mt-4">Welcome to Django's TweetHQ</h1>
+
+<a class="btn btn-primary mb-4" href="{% url 'create_tweet' %}">Create a Tweet</a>
+
+{% for tweet in tweets %}
+<div class="card" style="width: 18rem; margin-bottom: 20px;">
+    {% if tweet.photo %}
+    <img src="{{ tweet.photo.url }}" class="card-img-top" alt="Tweet Photo">
+    {% endif %}
+    <div class="card-body">
+        <h5 class="card-title">{{ tweet.user.username }}</h5>
+        <p class="card-text">{{ tweet.content }}</p>
+        <a href="{% url 'edit_tweet' tweet.id %}" class="btn btn-primary">Edit</a>
+        <a href="{% url 'delete_tweet' tweet.id %}" class="btn btn-danger">Delete</a>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
