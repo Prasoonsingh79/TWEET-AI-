@@ -1,25 +1,77 @@
 {% extends 'layout.html' %}
 
-{% block title %}
-chai Aur Tweet
+{% block title %}{% if form.instance.pk %}Edit Tweet{% else %}New Tweet{% endif %} | TweetHQ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        background: var(--card-glass);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 3rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        max-width: 600px;
+        width: 100%;
+        margin: 2rem auto;
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        padding: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--primary-accent);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        color: white;
+    }
+
+    .file-input-wrapper {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .file-input-wrapper:hover {
+        border-color: var(--primary-accent);
+        background: rgba(59, 130, 246, 0.05);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<h1 class="text-center text-dark mt-4">
-    {% if form.instance.pk %}
-        Edit Tweet
-    {% else %}
-        Create a Tweet
-    {% endif %}
-</h1>
-
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <form method="post" enctype="multipart/form-data" class="card p-4 mt-4 shadow-sm">
+<div class="d-flex justify-content-center align-items-center">
+    <div class="form-card">
+        <h2 class="fw-bold mb-4">{% if form.instance.pk %}Edit Tweet{% else %}Share Something{% endif %}</h2>
+        
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary mt-3">Submit</button>
-            <a href="{% url 'tweet_list' %}" class="btn btn-secondary mt-3 ms-2">Cancel</a>
+            {% for field in form %}
+                <div class="mb-4">
+                    <label class="form-label text-secondary fw-semibold">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <p class="text-danger small mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <a href="{% url 'tweet_list' %}" class="btn btn-outline-custom px-4 me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-premium px-5">{% if form.instance.pk %}Update Tweet{% else %}Post Tweet{% endif %}</button>
+            </div>
         </form>
     </div>
 </div>

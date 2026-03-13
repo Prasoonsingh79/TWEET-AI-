@@ -1,27 +1,150 @@
 {% extends 'layout.html' %}
 
-{% block title %}
-chai Aur Tweet
+{% block title %}Explore | TweetHQ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tweet-card {
+        background: var(--card-glass);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tweet-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .tweet-image {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tweet-content {
+        padding: 1.5rem;
+        flex-grow: 1;
+    }
+
+    .tweet-author {
+        font-weight: 700;
+        color: #f8fafc;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .tweet-author::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background: var(--primary-accent);
+        border-radius: 50%;
+    }
+
+    .tweet-text {
+        color: #cbd5e1;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .tweet-footer {
+        padding: 1rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .hero-section {
+        padding: 4rem 1rem;
+        text-align: center;
+        background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+        border-radius: 30px;
+        margin-bottom: 3rem;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        letter-spacing: -2px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: #94a3b8;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+
+    .empty-state {
+        padding: 5rem 0;
+        text-align: center;
+        color: #64748b;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<h1 class="text-center text-dark mt-4">Welcome to Django's TweetHQ</h1>
-
-<a class="btn btn-primary mb-4" href="{% url 'create_tweet' %}">Create a Tweet</a>
-
-{% for tweet in tweets %}
-<div class="card" style="width: 18rem; margin-bottom: 20px;">
-    {% if tweet.photo %}
-    <img src="{{ tweet.photo.url }}" class="card-img-top" alt="Tweet Photo">
-    {% endif %}
-    <div class="card-body">
-        <h5 class="card-title">{{ tweet.user.username }}</h5>
-        <p class="card-text">{{ tweet.content }}</p>
-        {% if tweet.user == user %}
-        <a href="{% url 'edit_tweet' tweet.id %}" class="btn btn-primary">Edit</a>
-        <a href="{% url 'delete_tweet' tweet.id %}" class="btn btn-danger">Delete</a>
-        {% endif %}
+{% if not request.GET.search %}
+<div class="hero-section">
+    <h1 class="hero-title">Welcome to <span style="color: var(--primary-accent)">TweetHQ</span></h1>
+    <p class="hero-subtitle">Connect, share, and explore what's happening in your digital universe. Join the conversation today.</p>
+    {% if user.is_authenticated %}
+    <a class="btn btn-premium btn-lg" href="{% url 'create_tweet' %}">Share a Thought</a>
+    {% else %}
+    <div class="d-flex justify-content-center gap-3">
+        <a class="btn btn-premium btn-lg" href="{% url 'register' %}">Get Started</a>
+        <a class="btn btn-outline-custom btn-lg" href="{% url 'login' %}">Login</a>
     </div>
+    {% endif %}
 </div>
-{% endfor %}
+{% endif %}
+
+<div class="row g-4">
+    {% for tweet in tweets %}
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="tweet-card">
+            {% if tweet.photo %}
+            <img src="{{ tweet.photo.url }}" class="tweet-image" alt="Tweet Image">
+            {% else %}
+            <!-- Placeholder Gradient if no image -->
+            <div class="tweet-image" style="background: linear-gradient(45deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; opacity: 0.5;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            </div>
+            {% endif %}
+            
+            <div class="tweet-content">
+                <div class="tweet-author">@{{ tweet.user.username }}</div>
+                <p class="tweet-text">{{ tweet.content }}</p>
+            </div>
+            
+            {% if tweet.user == user %}
+            <div class="tweet-footer">
+                <a href="{% url 'edit_tweet' tweet.id %}" class="btn btn-sm btn-outline-custom">Edit</a>
+                <a href="{% url 'delete_tweet' tweet.id %}" class="btn btn-sm btn-outline-danger" style="border-radius: 8px;">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3 opacity-20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        <h3>No tweets found</h3>
+        <p>Try a different search or be the first to post something new!</p>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
