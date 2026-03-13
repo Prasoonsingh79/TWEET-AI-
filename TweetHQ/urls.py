@@ -20,8 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
+from django.shortcuts import redirect
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('Tweet/', include('Tweet.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('', lambda request: redirect('tweet_list')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
