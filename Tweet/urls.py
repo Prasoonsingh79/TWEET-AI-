@@ -22,4 +22,5 @@ urlpatterns = [
     path('create/', views.create_tweet, name='create_tweet'),
     path('<int:tweet_id>/edit/', views.Tweet_edit, name='edit_tweet'),
     path('<int:tweet_id>/delete/', views.Tweet_delete, name='delete_tweet'),
+    path('register/', views.register, name='register'),
 ]
